@@ -1,3 +1,12 @@
+<div align="center">
+
+<a href="https://modrinth.com/mod/bredexempt"><img alt="Available on Modrinth" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/bredexempt"><img alt="Available on CurseForge" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/curseforge_vector.svg"></a>
+<a href="https://github.com/NothingItIs/nothingitis-mods/tree/main/bredexempt"><img alt="Source on GitHub" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/github_vector.svg"></a>
+<a href="https://discord.gg/zzXB5NeYzB"><img alt="Join our Discord" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/social/discord-plural_vector.svg"></a>
+
+</div>
+
 # BredExempt
 
 **Your breeding and egg farms are quietly starving your natural spawns. BredExempt stops that.**
@@ -27,9 +36,3 @@ Mods with **custom breeding systems, custom spawners, custom mob caps, or custom
 ## Server support
 
 Relies on vanilla's persistent-mob cap exemption.
-
-## Links
-
-- CurseForge: https://www.curseforge.com/minecraft/mc-mods/bredexempt
-- Modrinth: https://modrinth.com/mod/bredexempt
-- Github: https://github.com/NothingItIs/nothingitis-mods/tree/main/bredexempt

@@ -1,3 +1,12 @@
+<div align="center">
+
+<a href="https://modrinth.com/project/village-doctor"><img alt="Available on Modrinth" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/village-doctor"><img alt="Available on CurseForge" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/curseforge_vector.svg"></a>
+<a href="https://github.com/NothingItIs/nothingitis-mods/tree/main/villagedoctor"><img alt="Source on GitHub" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/github_vector.svg"></a>
+<a href="https://discord.gg/zzXB5NeYzB"><img alt="Join our Discord" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/social/discord-plural_vector.svg"></a>
+
+</div>
+
 # Village Doctor
 
 **Right-click a villager with a Stethoscope for a full checkup — and a plain diagnosis of why it won't breed, restock, or claim a bed or workstation.**
@@ -25,9 +34,3 @@ Everything works on any villager built on Minecraft's standard villager type —
 Village Doctor is **server-side** — install it on the server and completely vanilla clients get everything, including the checkup screen. Works in singleplayer too.
 
 **Optional client module** — the same jar also works on your client. With it installed, outlines upgrade to crisp wireframes that trace each block's real shape. Clients and servers mix freely across loaders — a NeoForge client on a Fabric server gets the upgrades. Vanilla clients lose nothing.
-
-## Links
-
-- CurseForge: https://www.curseforge.com/minecraft/mc-mods/village-doctor
-- Modrinth: https://modrinth.com/project/village-doctor
-- Github: https://github.com/NothingItIs/nothingitis-mods/tree/main/villagedoctor
