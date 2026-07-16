@@ -1,0 +1,8 @@
+architectury {
+    common("fabric", "neoforge")
+}
+
+dependencies {
+    implementation libs.fabric.loader
+    implementation "dev.architectury:architectury:20.0.8"
+}

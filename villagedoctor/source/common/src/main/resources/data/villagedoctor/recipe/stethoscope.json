@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "minecraft:spyglass",
+    "minecraft:string",
+    "minecraft:copper_ingot"
+  ],
+  "result": {
+    "id": "minecraft:spyglass",
+    "count": 1,
+    "components": {
+      "minecraft:custom_name": {
+        "text": "Stethoscope",
+        "italic": false,
+        "color": "white"
+      },
+      "minecraft:lore": [
+        {
+          "text": "For checking on the villagers.",
+          "italic": true,
+          "color": "gray"
+        }
+      ],
+      "minecraft:custom_data": {
+        "villagedoctor:stethoscope": true
+      },
+      "minecraft:enchantment_glint_override": true
+    }
+  }
+}

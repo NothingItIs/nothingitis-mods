@@ -1,0 +1,70 @@
+name: Build
+
+# Generic multi-mod CI (NothingItIs, 2026-07-15): every folder shaped like <mod>/source/
+# (with a Gradle wrapper) is discovered and built — nothing is mod-specific, so new
+# mods get CI automatically the moment their source/ lands in the repo.
+
+on:
+  push:
+    paths:
+      - "*/source/**"
+      - ".github/workflows/build.yml"
+  pull_request:
+    paths:
+      - "*/source/**"
+      - ".github/workflows/build.yml"
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      mods: ${{ steps.list.outputs.mods }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: List mods with buildable source
+        id: list
+        run: echo "mods=$(ls -d */source/gradlew 2>/dev/null | sed 's|/source/gradlew||' | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: discover
+    if: ${{ needs.discover.outputs.mods != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mod: ${{ fromJSON(needs.discover.outputs.mods) }}
+    name: build ${{ matrix.mod }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.mod }}/source
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Java 25 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Upload built jars
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.mod }}-jars
+          path: |
+            ${{ matrix.mod }}/source/fabric/build/libs/*.jar
+            ${{ matrix.mod }}/source/neoforge/build/libs/*.jar
+            ${{ matrix.mod }}/source/build/libs/*.jar
+          if-no-files-found: error

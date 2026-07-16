@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "villagedoctor"
+version = "${mod_version}"
+displayName = "Village Doctor"
+description = "Villager diagnostics — Stethoscope checkups, per-player outlines, and bed/workstation owner lookup."
+logoFile = "assets/villagedoctor/icon.png"
+authors = "NothingItIs"
+
+[[mixins]]
+config = "villagedoctor.mixins.json"
+
+[[dependencies.villagedoctor]]
+modId = "neoforge"
+type = "required"
+versionRange = "[26.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.villagedoctor]]
+modId = "minecraft"
+type = "required"
+versionRange = "[26.1,)"
+ordering = "NONE"
+side = "BOTH"

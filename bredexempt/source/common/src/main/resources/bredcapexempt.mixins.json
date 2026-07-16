@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.nothingitis.bredcapexempt.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "AnimalMixin",
+    "ThrownEggMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

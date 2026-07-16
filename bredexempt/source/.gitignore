@@ -1,0 +1,18 @@
+# Gradle
+.gradle/
+build/
+
+# Loader run dirs (test client/server)
+run/
+runs/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+bin/

@@ -1,0 +1,6 @@
+- Added `/bredexempt inspect` — look at a mob to see its category, whether it's persistent, whether BredExempt marked it (and why), and if it still counts toward the cap
+- Added `/bredexempt cap` — live passive-cap accounting for your dimension, using vanilla's own counts
+- Added a config file (`config/bredexempt.properties`): toggle exempting offspring, parents, and egg-hatched chicks
+- Added allowlist/denylist (config) and `#bredexempt:allowed` / `#bredexempt:denied` entity tags for modpack control
+- Marked animals now carry a `bredexempt:reason` marker that survives save/reload — proof the exemption came from this mod
+- Fabric: now requires Fabric API

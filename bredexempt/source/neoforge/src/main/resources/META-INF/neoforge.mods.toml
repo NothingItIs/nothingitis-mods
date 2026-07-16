@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "bredcapexempt"
+version = "${mod_version}"
+displayName = "BredExempt"
+description = "Bred animals and egg-hatched chicks no longer count toward the mob cap, so breeding farms stop suppressing natural spawns."
+authors = "NothingItIs"
+
+[[mixins]]
+config = "bredcapexempt.mixins.json"
+
+[[dependencies.bredcapexempt]]
+modId = "neoforge"
+type = "required"
+versionRange = "[26.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.bredcapexempt]]
+modId = "minecraft"
+type = "required"
+versionRange = "[26.1,)"
+ordering = "NONE"
+side = "BOTH"

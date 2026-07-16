@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "dev.nothingitis.villagedoctor.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "BlockDisplayAccessor",
+    "DisplayAccessor",
+    "EntityAccessor",
+    "RecipeManagerMixin",
+    "ServerCommonPacketListenerImplMixin",
+    "VillagerAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

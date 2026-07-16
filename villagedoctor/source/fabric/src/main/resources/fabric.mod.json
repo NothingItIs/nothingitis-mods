@@ -1,0 +1,25 @@
+{
+    "schemaVersion": 1,
+    "id": "villagedoctor",
+    "version": "${mod_version}",
+    "name": "Village Doctor",
+    "description": "Villager diagnostics \u2014 Stethoscope checkups, per-player outlines, and bed/workstation owner lookup.",
+    "authors": [
+        "NothingItIs"
+    ],
+    "license": "MIT",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "dev.nothingitis.villagedoctor.fabric.VillageDoctorFabric"
+        ]
+    },
+    "mixins": [
+        "villagedoctor.mixins.json"
+    ],
+    "depends": {
+        "minecraft": ">=26.1",
+        "fabric-api": ">=0.154.2"
+    },
+    "icon": "assets/villagedoctor/icon.png"
+}
