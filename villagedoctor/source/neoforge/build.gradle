@@ -30,7 +30,7 @@ dependencies {
     neoForge "net.neoforged:neoforge:26.1.2.78"
     implementation "dev.architectury:architectury-neoforge:20.0.8"
 
-    common(project(":common")) { transitive false }
+    common(project(":common")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 }
 

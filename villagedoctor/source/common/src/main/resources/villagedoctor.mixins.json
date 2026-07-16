@@ -12,5 +12,12 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "client.DialogScreenAccessor",
+    "client.DialogScreenMixin",
+    "client.MultiPlayerGameModeMixin",
+    "client.ScreenRemovedMixin",
+    "client.VillagerClientInteractMixin"
+  ]
 }

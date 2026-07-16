@@ -1,1 +1,9 @@
-First release.
+- Optional client module: install the same jar on your client and outlines upgrade to crisp wireframes that trace each block's real shape — a bed reads as a bed, a lectern as a lectern.
+- With the client installed, the spyglass zoom flash on shift-clicks and the baby villager head-shake are gone.
+- Modded clients and servers mix freely across loaders — a NeoForge client on a Fabric server gets the upgrades.
+- The checkup screen no longer loses your scroll position: with the client module it stays live and keeps your place through every refresh.
+- On vanilla clients the checkup is now a stable snapshot (a hint line says so) — reopen it to refresh. The old once-a-second refresh reset the scroll to the top.
+- The Stethoscope gets its own hand-drawn texture on clients with the mod — vanilla clients keep seeing the enchanted spyglass.
+- With the client module the Stethoscope no longer zooms like a spyglass — it is not one anymore; vanilla clients keep the zoom.
+- Bell owner lookup now flashes every claimant, not just the first 8 — outlined villagers stay steady in their own color instead of blinking.
+- Vanilla clients need nothing else and lose nothing — the rest of the server-side experience is unchanged.

@@ -31,7 +31,6 @@ import java.util.List;
 public final class OwnerLookup {
 
     private static final int PULSE_TICKS = 100; // ~5 seconds
-    private static final int MAX_PULSED = 8;    // bells are shared; don't strobe a whole village
 
     private record Claim(Villager villager, String what) {
     }
@@ -88,8 +87,10 @@ public final class OwnerLookup {
                     .append(Component.literal(claims.size() + " villagers").withStyle(ChatFormatting.AQUA));
             player.sendSystemMessage(copyable(msg));
         }
-        claims.stream().limit(MAX_PULSED)
-                .forEach(claim -> OutlineService.pulse(player, level, claim.villager(), PULSE_TICKS));
+        // every claimant pulses — finding the whole village is the point (2026-07-16;
+        // replaced a cap of 8 that read as "only a few flash" on real bells). Already-
+        // outlined villagers stay steady in their own color instead (pulse() skips them).
+        claims.forEach(claim -> OutlineService.pulse(player, level, claim.villager(), PULSE_TICKS));
     }
 
     private static boolean claims(Brain<?> brain, MemoryModuleType<GlobalPos> memory, GlobalPos target) {

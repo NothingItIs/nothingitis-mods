@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.CustomData;
 
@@ -44,6 +45,10 @@ public final class Stethoscope {
                 Component.literal("For checking on the villagers.")
                         .withStyle(style -> style.withItalic(true).withColor(ChatFormatting.GRAY)))));
         stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+        // cosmetic only — drives the client module's texture override (vanilla clients
+        // ignore it); identity stays the CUSTOM_DATA marker above, never this
+        stack.set(DataComponents.CUSTOM_MODEL_DATA,
+                new CustomModelData(List.of(), List.of(), List.of(MARKER_KEY), List.of()));
         return stack;
     }
 }

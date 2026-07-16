@@ -1,6 +1,7 @@
 package dev.nothingitis.villagedoctor.report;
 
 import dev.nothingitis.villagedoctor.dialog.CheckupActions;
+import dev.nothingitis.villagedoctor.network.ClientCapability;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -36,7 +37,13 @@ public final class CheckupUi {
     private static final int LINE_WIDTH = 300;
     private static final int BUTTON_WIDTH = 150;
 
-    /** Player -> villager whose checkup is on screen; re-sent each second so it's LIVE. */
+    /**
+     * Player -> villager whose checkup is on screen. Client-capable viewers get a live
+     * re-send each second (their client preserves the scroll position across the reopen);
+     * vanilla clients get ONE static snapshot — every reopen resets their scroll, so live
+     * updates there were unusable in a small window (design decision, 2026-07-16). The map
+     * still tracks vanilla viewers so the villager-gone cleanup reaches them.
+     */
     private static final java.util.Map<java.util.UUID, java.util.UUID> OPEN = new java.util.HashMap<>();
 
     private CheckupUi() {
@@ -56,7 +63,7 @@ public final class CheckupUi {
         OPEN.remove(playerId);
     }
 
-    /** Once a second: re-send open checkups so countdowns and food points tick live. */
+    /** Once a second: re-send open checkups (client-capable viewers only) and close any whose villager is gone. */
     public static void tick(net.minecraft.server.MinecraftServer server) {
         if (OPEN.isEmpty() || server.getTickCount() % 20 != 0) return;
         java.util.Iterator<java.util.Map.Entry<java.util.UUID, java.util.UUID>> it = OPEN.entrySet().iterator();
@@ -71,7 +78,9 @@ public final class CheckupUi {
                 if (!(player.level() instanceof ServerLevel level)) return;
                 if (level.getEntityInAnyDimension(entry.getValue()) instanceof Villager villager
                         && villager.isAlive()) {
-                    send(player, (ServerLevel) villager.level(), villager);
+                    if (ClientCapability.has(player)) {
+                        send(player, (ServerLevel) villager.level(), villager);
+                    }
                 } else {
                     player.connection.send(
                             net.minecraft.network.protocol.common.ClientboundClearDialogPacket.INSTANCE);
@@ -89,6 +98,10 @@ public final class CheckupUi {
         List<DialogBody> body = new ArrayList<>();
         for (VillagerReport.Line line : report.lines()) {
             body.add(new PlainMessage(copyable(styled(line), line.plain()), LINE_WIDTH));
+        }
+        if (!ClientCapability.has(player)) {
+            body.add(new PlainMessage(Component.literal("Snapshot — reopen to refresh.")
+                    .withStyle(ChatFormatting.DARK_GRAY), LINE_WIDTH));
         }
 
         CommonDialogData common = new CommonDialogData(

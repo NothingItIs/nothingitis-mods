@@ -5,6 +5,7 @@ import dev.nothingitis.villagedoctor.config.VillageDoctorConfig;
 import dev.nothingitis.villagedoctor.mixin.BlockDisplayAccessor;
 import dev.nothingitis.villagedoctor.mixin.DisplayAccessor;
 import dev.nothingitis.villagedoctor.mixin.EntityAccessor;
+import dev.nothingitis.villagedoctor.network.ClientCapability;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.ChatFormatting;
@@ -72,6 +73,8 @@ public final class OutlineService {
             new java.util.concurrent.atomic.AtomicInteger(1_500_000_000);
     /** Packed sky/block light 15/15 — ghost boxes ignore local light (they'd sample 0 inside blocks). */
     private static final int FULL_BRIGHT = 15 << 20 | 15 << 4;
+    /** Marks entry.displays records that were sent as v1.1 payloads, not fake entities. */
+    private static final int PAYLOAD_SENTINEL = -1;
     /** EntityType.BLOCK_DISPLAY (the static field) was removed in 26.2 — resolve via registry, version-proof. */
     private static EntityType<?> blockDisplayType;
 
@@ -317,6 +320,18 @@ public final class OutlineService {
         // block samples light level 0 and renders pitch black. Glass + forced full-bright
         // + glow color = a clean colored outline box with the real block visible inside.
         int color = rgb(entry.color);
+        if (ClientCapability.has(player)) {
+            // modded client: one structured payload, client renders wireframes (v1.1)
+            List<BlockPos> positions = new ArrayList<>();
+            for (BlockPos pos : poiBlocks(level, villager)) {
+                if (!level.getBlockState(pos).isAir()) positions.add(pos);
+            }
+            ClientCapability.sendOutline(player, entry.villagerId, color, positions);
+            for (BlockPos pos : positions) {
+                entry.displays.add(new FakeDisplay(PAYLOAD_SENTINEL, entry.villagerId, pos, null));
+            }
+            return;
+        }
         for (BlockPos pos : poiBlocks(level, villager)) {
             if (level.getBlockState(pos).isAir()) continue;
             FakeDisplay display = spawnGhost(player, pos, color);
@@ -346,6 +361,11 @@ public final class OutlineService {
 
     private static void removeDisplays(ServerPlayer player, Entry entry) {
         if (entry.displays.isEmpty()) return;
+        if (entry.displays.getFirst().entityId() == PAYLOAD_SENTINEL) {
+            ClientCapability.sendOutline(player, entry.villagerId, 0, List.of()); // empty = remove key
+            entry.displays.clear();
+            return;
+        }
         IntList ids = new IntArrayList(entry.displays.size());
         entry.displays.forEach(d -> ids.add(d.entityId()));
         send(player, new ClientboundRemoveEntitiesPacket(ids));
@@ -412,16 +432,30 @@ public final class OutlineService {
         while (it.hasNext()) {
             Map.Entry<BlockPos, FakeDisplay> e = it.next();
             if (!desired.contains(e.getKey())) {
-                send(player, new ClientboundRemoveEntitiesPacket(IntList.of(e.getValue().entityId())));
+                if (e.getValue().entityId() == PAYLOAD_SENTINEL) {
+                    ClientCapability.sendOutline(player, bellKey(e.getKey()), 0, List.of());
+                } else {
+                    send(player, new ClientboundRemoveEntitiesPacket(IntList.of(e.getValue().entityId())));
+                }
                 it.remove();
             }
         }
         for (BlockPos pos : desired) {
             if (!current.containsKey(pos)) {
-                FakeDisplay ghost = spawnGhost(player, pos, 0x000000);
-                if (ghost != null) current.put(pos, ghost);
+                if (ClientCapability.has(player)) {
+                    ClientCapability.sendOutline(player, bellKey(pos), 0x000000, List.of(pos));
+                    current.put(pos, new FakeDisplay(PAYLOAD_SENTINEL, bellKey(pos), pos, null));
+                } else {
+                    FakeDisplay ghost = spawnGhost(player, pos, 0x000000);
+                    if (ghost != null) current.put(pos, ghost);
+                }
             }
         }
+    }
+
+    /** Stable synthetic key for a bell position (bells aren't entities). */
+    private static UUID bellKey(BlockPos pos) {
+        return UUID.nameUUIDFromBytes(("villagedoctor:bell:" + pos.asLong()).getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     private static void addPoi(List<BlockPos> out, ServerLevel level, Optional<GlobalPos> gp) {

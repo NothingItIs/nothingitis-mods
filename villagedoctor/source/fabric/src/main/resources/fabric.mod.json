@@ -12,10 +12,14 @@
     "entrypoints": {
         "main": [
             "dev.nothingitis.villagedoctor.fabric.VillageDoctorFabric"
+        ],
+        "client": [
+            "dev.nothingitis.villagedoctor.fabric.client.VillageDoctorFabricClient"
         ]
     },
     "mixins": [
-        "villagedoctor.mixins.json"
+        "villagedoctor.mixins.json",
+        "villagedoctor.fabric.mixins.json"
     ],
     "depends": {
         "minecraft": ">=26.1",
