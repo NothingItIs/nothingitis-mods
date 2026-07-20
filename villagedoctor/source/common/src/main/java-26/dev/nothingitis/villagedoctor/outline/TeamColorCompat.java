@@ -8,6 +8,12 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 /**
+ * 26.x ONLY. Reflection is safe here because 26.x is unobfuscated — the jar is built with
+ * loom-no-remap, so runtime method names ARE the Mojang names the strings below expect.
+ * ⛔ Do NOT reuse this on the 1.21.x line: that jar is remapped to intermediary, string
+ * literals are never remapped, so "setColor" would never match method_NNNN and the shim
+ * would silently no-op (villager outlines rendered pure white, live 2026-07-20).
+ *
  * PlayerTeam#setColor drifted between 26.1 (takes ChatFormatting) and 26.2
  * (takes Optional&lt;TeamColor&gt;, an enum with the same 16 color names).
  * Resolved once by reflection so ONE jar runs on both — a direct call

@@ -3,6 +3,11 @@ name: Build
 # Generic multi-mod CI (NothingItIs, 2026-07-15): every folder shaped like <mod>/source/
 # (with a Gradle wrapper) is discovered and built — nothing is mod-specific, so new
 # mods get CI automatically the moment their source/ lands in the repo.
+#
+# 2026-07-20: builds EVERY MC generation, not just the default. Before this it ran a bare
+# `./gradlew build`, which compiles the 26.x pins only — so the 1.21.x half of a mod could
+# be completely broken and CI would still go green. Generations are discovered per mod from
+# the presence of gradle-<gen>.properties.
 
 on:
   push:
@@ -35,7 +40,12 @@ jobs:
       fail-fast: false
       matrix:
         mod: ${{ fromJSON(needs.discover.outputs.mods) }}
-    name: build ${{ matrix.mod }}
+        # Each mod may target more than one MC generation from one source tree
+        # (-Pgen=<gen> swaps the pin files). "26" is the default and takes no flag.
+        # A mod that does not carry gradle-<gen>.properties simply skips that leg,
+        # so single-generation mods keep working untouched.
+        gen: ["26", "1.21.11"]
+    name: build ${{ matrix.mod }} (mc ${{ matrix.gen }})
     defaults:
       run:
         working-directory: ${{ matrix.mod }}/source
@@ -56,13 +66,30 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
+      - name: Does this mod target ${{ matrix.gen }}?
+        id: targets
+        run: |
+          if [ "${{ matrix.gen }}" = "26" ] || [ -f "gradle-${{ matrix.gen }}.properties" ]; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "yes=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::${{ matrix.mod }} has no gradle-${{ matrix.gen }}.properties - not a target, skipping"
+          fi
+
       - name: Build
-        run: ./gradlew build
+        if: steps.targets.outputs.yes == 'true'
+        run: |
+          if [ "${{ matrix.gen }}" = "26" ]; then
+            ./gradlew build
+          else
+            ./gradlew build -Pgen=${{ matrix.gen }}
+          fi
 
       - name: Upload built jars
+        if: steps.targets.outputs.yes == 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.mod }}-jars
+          name: ${{ matrix.mod }}-mc${{ matrix.gen }}-jars
           path: |
             ${{ matrix.mod }}/source/fabric/build/libs/*.jar
             ${{ matrix.mod }}/source/neoforge/build/libs/*.jar

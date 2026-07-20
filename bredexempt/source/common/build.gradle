@@ -3,6 +3,9 @@ architectury {
 }
 
 dependencies {
-    implementation libs.fabric.loader
-    implementation "dev.architectury:architectury:20.0.8"
+    // On 1.21.11 these ship in the intermediary namespace and MUST be remapped into ours
+    // (modImplementation/modApi do that). loom-no-remap on 26.x registers no mod*
+    // configurations at all, so the configuration NAME is generation-dependent.
+    add(rootProject.cfgMod, libs.fabric.loader)
+    add(rootProject.cfgModApi, libs.architectury.api)
 }

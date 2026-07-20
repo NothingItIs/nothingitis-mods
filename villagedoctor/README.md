@@ -34,3 +34,5 @@ Everything works on any villager built on Minecraft's standard villager type —
 Village Doctor is **server-side** — install it on the server and completely vanilla clients get everything, including the checkup screen. Works in singleplayer too.
 
 **Optional client module** — the same jar also works on your client. With it installed, outlines upgrade to crisp wireframes that trace each block's real shape. Clients and servers mix freely across loaders — a NeoForge client on a Fabric server gets the upgrades. Vanilla clients lose nothing.
+
+**Quilt** runs the Fabric jar, but needs **Quilt Loader 0.30.0 or newer**. Quilt may offer an older loader for 1.21.11; that one fails to start with a missing-`fabricloader` error.

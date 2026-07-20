@@ -20,12 +20,12 @@ configurations {
 }
 
 dependencies {
-    implementation libs.fabric.loader
-    implementation libs.fabric.api
-    implementation "dev.architectury:architectury-fabric:20.0.8"
+    add(rootProject.cfgMod, libs.fabric.loader)
+    add(rootProject.cfgMod, libs.fabric.api)
+    add(rootProject.cfgModApi, libs.architectury.fabric)
 
-    common(project(":common")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+    common(project(":common")) { transitive = false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive = false }
 }
 
 jar {
@@ -37,7 +37,9 @@ shadowJar {
     mainSpec.sourcePaths.clear()
     from(zipTree(jar.archiveFile))
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier = null
+    // On 1.21.11 the shadow jar is an INTERMEDIATE — remapJar produces the real artifact.
+    // On 26.x nothing needs remapping, so the shadow jar IS the artifact.
+    archiveClassifier = rootProject.needsRemap ? "dev-shadow" : null
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
@@ -51,4 +53,17 @@ components.java {
     withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) { skip() }
 }
 
-assemble.dependsOn shadowJar
+// ⛔ On 1.21.11 remapJar is MANDATORY. Without it the build still goes green, but the mixin
+// targets keep their official Mojang names while Fabric's runtime uses intermediary — so the
+// mixins resolve nothing and silently never apply. A working build, a dead mod.
+// On 26.x there is no remapping step at all, so shadowJar is the final artifact.
+if (rootProject.needsRemap) {
+    remapJar {
+        input.set shadowJar.archiveFile
+        dependsOn shadowJar
+        archiveClassifier = null
+    }
+    assemble.dependsOn remapJar
+} else {
+    assemble.dependsOn shadowJar
+}

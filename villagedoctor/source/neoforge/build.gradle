@@ -27,8 +27,8 @@ repositories {
 }
 
 dependencies {
-    neoForge "net.neoforged:neoforge:26.1.2.78"
-    implementation "dev.architectury:architectury-neoforge:20.0.8"
+    neoForge libs.neoforge
+    add(rootProject.cfgModApi, libs.architectury.neoforge)
 
     common(project(":common")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
@@ -43,7 +43,8 @@ shadowJar {
     mainSpec.sourcePaths.clear()
     from(zipTree(jar.archiveFile))
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier = null
+    // Intermediate on 1.21.11 (remapJar makes the real artifact); final on 26.x.
+    archiveClassifier = rootProject.needsRemap ? "dev-shadow" : null
 }
 
 sourcesJar {
@@ -56,4 +57,16 @@ components.java {
     withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) { skip() }
 }
 
-assemble.dependsOn shadowJar
+// ⛔ On 1.21.11 remapJar is MANDATORY: without it the mixin targets keep official Mojang
+// names while Fabric's runtime uses intermediary, so they resolve nothing and silently never
+// apply — a green build and a dead mod. 26.x needs no remapping at all.
+if (rootProject.needsRemap) {
+    remapJar {
+        input.set shadowJar.archiveFile
+        dependsOn shadowJar
+        archiveClassifier = null
+    }
+    assemble.dependsOn remapJar
+} else {
+    assemble.dependsOn shadowJar
+}

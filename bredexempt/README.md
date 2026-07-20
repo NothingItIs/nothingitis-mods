@@ -36,3 +36,5 @@ Mods with **custom breeding systems, custom spawners, custom mob caps, or custom
 ## Server support
 
 Relies on vanilla's persistent-mob cap exemption.
+
+**Quilt** runs the Fabric jar, but needs **Quilt Loader 0.30.0 or newer**. Quilt may offer an older loader for 1.21.11; that one fails to start with a missing-`fabricloader` error.

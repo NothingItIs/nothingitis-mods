@@ -70,6 +70,7 @@ public final class VillageDoctorNeoForge {
             OutlineService.clear(event.getEntity().getUUID());
             dev.nothingitis.villagedoctor.report.CheckupUi.clear(event.getEntity().getUUID());
             ClientCapability.clear(event.getEntity().getUUID());
+            VillageDoctorActions.clear(event.getEntity().getUUID());
         });
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent event) -> {
             if (event.getEntity() instanceof ServerPlayer player) OutlineService.markStale(player);

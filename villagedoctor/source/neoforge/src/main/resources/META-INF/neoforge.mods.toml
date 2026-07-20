@@ -16,13 +16,13 @@ config = "villagedoctor.mixins.json"
 [[dependencies.villagedoctor]]
 modId = "neoforge"
 type = "required"
-versionRange = "[26.1,)"
+versionRange = "${nf_depend}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.villagedoctor]]
 modId = "minecraft"
 type = "required"
-versionRange = "[26.1,)"
+versionRange = "${mc_depend_neoforge}"
 ordering = "NONE"
 side = "BOTH"

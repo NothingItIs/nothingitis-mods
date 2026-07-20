@@ -16,10 +16,18 @@ pluginManagement {
     }
 }
 
+// MC generation selector. Default is 26.x; -Pgen=1.21.11 switches every dependency pin to
+// the 1.21.11 catalog. build.sh drives both generations in turn.
+def gen = startParameter.projectProperties.get("gen") ?: "26"
+def catalog = (gen == "26") ? "libs.versions.toml" : "libs.versions.${gen}.toml"
+if (!file(catalog).exists()) {
+    throw new GradleException("unknown -Pgen=${gen}: no ${catalog} (expected 26 or 1.21.11)")
+}
+
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            from(files("libs.versions.toml"))
+            from(files(catalog))
         }
     }
 }

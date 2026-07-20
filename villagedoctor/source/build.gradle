@@ -1,10 +1,41 @@
+// DUAL-GENERATION BUILD (added 2026-07-20)
+// One source tree, two MC generations. `-Pgen=1.21.11` loads gradle-1.21.11.properties over
+// gradle.properties and switches settings.gradle to the matching version catalog. Without it
+// the 26.x values apply, so every existing invocation behaves exactly as before.
+//
+// Every difference below was found by an actual failing build, not by reasoning. The full
+// account is in notes.claude/research/1.21.11-build-recipe-PROVEN.md — read it before
+// changing any of this.
 plugins {
     id "architectury-plugin" version "3.5.169"
+    // Both IDs come from the SAME dev.architectury:architectury-loom artifact
+    // (LoomGradlePlugin vs LoomNoRemapGradlePlugin), so declaring both costs nothing and
+    // cannot conflict. 1.21.11 is obfuscated and needs the remapping one; 26.x does not.
+    id "dev.architectury.loom" version "1.17.491" apply false
     id "dev.architectury.loom-no-remap" version "1.17.491" apply false
 }
 
+// Generation overrides must land before subprojects are configured. They are, because
+// subprojects {} bodies run after this script finishes.
+def gen = project.findProperty("gen") ?: "26"
+if (gen != "26") {
+    def overrides = file("gradle-${gen}.properties")
+    if (!overrides.exists()) throw new GradleException("unknown -Pgen=${gen}: no ${overrides.name}")
+    def p = new Properties()
+    overrides.withInputStream { p.load(it) }
+    p.each { k, v -> project.ext.set(k.toString(), v.toString()) }
+}
+ext.mcGeneration = gen
+ext.needsRemap = Boolean.parseBoolean(project.property("needs_remap").toString())
+// loom-no-remap registers NO mod* configurations (there is nothing to remap), so the
+// dependency configuration name itself is generation-dependent. Subprojects use
+// `add(rootProject.cfgMod, ...)` rather than naming one directly.
+ext.cfgMod = ext.needsRemap ? "modImplementation" : "implementation"
+ext.cfgModApi = ext.needsRemap ? "modApi" : "implementation"
+logger.lifecycle("MC generation: ${gen} (mc=${project.property('minecraft_version')}, java=${project.property('java_release')}, remap=${ext.needsRemap})")
+
 subprojects {
-    apply plugin: "dev.architectury.loom-no-remap"
+    apply plugin: rootProject.property("loom_plugin").toString()
 
     loom {
         mixin {
@@ -14,20 +45,48 @@ subprojects {
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        // No `mappings` line — MC 26.1+ is unobfuscated, there is nothing to map.
+        if (rootProject.needsRemap) {
+            // 1.21.11 is obfuscated, so a mappings source is mandatory. 26.x has none
+            // because there is nothing to map.
+            mappings loom.officialMojangMappings()
+            // loom-no-remap injects sponge-mixin itself; the remapping plugin does not.
+            // compileOnly ONLY — adding it as an annotationProcessor re-enables the legacy
+            // MCP AP, which has no mappings here and fails every @Inject target.
+            compileOnly libs.sponge.mixin
+        }
     }
+
+    // PER-GENERATION SOURCE. Most code is generation-agnostic and lives in src/main/java.
+    // A file only lands here when the two generations need genuinely DIFFERENT source and no
+    // runtime shim will do — e.g. Fabric API renamed ServerEntityWorldChangeEvents to
+    // ServerEntityLevelChangeEvents in 26.x, and an event's functional interface cannot be
+    // reflected over cleanly. Prefer a reflection shim (see DayTimeCompat/TeamColorCompat);
+    // use this only when the symbol is resolved at COMPILE time and has no common form.
+    // Missing directories are ignored by Gradle, so a generation with no overrides costs nothing.
+    sourceSets.main.java.srcDir "src/main/java-${rootProject.mcGeneration}"
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = "UTF-8"
-        options.release = 25
+        options.release = Integer.parseInt(rootProject.property("java_release").toString())
     }
 
-    // single-source versioning: loader metadata gets mod_version from gradle.properties
+    // Single-source versioning plus the per-generation knobs. mod_version stays the one
+    // source of truth for the whole mod; everything else here differs per generation and so
+    // must never be hardcoded in the metadata files.
     processResources {
-        inputs.property "mod_version", rootProject.mod_version
-        filesMatching(["fabric.mod.json", "META-INF/neoforge.mods.toml"]) {
-            expand "mod_version": rootProject.mod_version
-        }
+        def props = [
+            mod_version       : rootProject.mod_version,
+            mixin_compat      : rootProject.property("mixin_compat"),
+            mc_depend_fabric  : rootProject.property("mc_depend_fabric"),
+            mc_depend_neoforge: rootProject.property("mc_depend_neoforge"),
+            fapi_depend       : rootProject.property("fapi_depend"),
+            nf_depend         : rootProject.property("nf_depend"),
+        ]
+        props.each { k, v -> inputs.property(k, v) }
+        filesMatching(["fabric.mod.json", "META-INF/neoforge.mods.toml"]) { expand(props) }
+        // Mixin refuses a compatibilityLevel above the running JVM: 1.21.11 runs Java 21,
+        // 26.x runs Java 25.
+        filesMatching(["*.mixins.json"]) { expand(props) }
     }
 }
 

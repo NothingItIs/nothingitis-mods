@@ -238,7 +238,9 @@ public final class VillagerReport {
     /** Relative time until locked trades can refresh (vanilla restock rules). */
     private static String restockCountdown(ServerLevel level, int restocksToday, long lastRestockGameTime) {
         if (restocksToday >= MAX_RESTOCKS_PER_DAY) {
-            long dayTime = level.getOverworldClockTime() % 24000L; // 26.x rename of getDayTime()
+            // Renamed between generations (1.21.x getDayTime / 26.x getOverworldClockTime),
+            // so it goes through the compat shim — see DayTimeCompat.
+            long dayTime = DayTimeCompat.dayTime(level) % 24000L;
             long untilWork = (24000L - dayTime + WORK_START_TICK) % 24000L;
             if (untilWork == 0) untilWork = 24000L;
             return "next work day — in ~" + relative(untilWork);

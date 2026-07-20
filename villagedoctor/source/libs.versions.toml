@@ -1,10 +1,19 @@
+# Dependency pins for the MC 26.x generation (the default). The 1.21.11 generation uses
+# libs.versions.1.21.11.toml, selected by settings.gradle via -Pgen=1.21.11.
+#
+# architectury-fabric / architectury-neoforge were previously hardcoded in the subproject
+# build.gradle files, which meant the catalog and the real dependency could drift. They are
+# declared here now so one generation switch moves every pin together.
 [versions]
 neoforge = "26.1.2.78"
 fabric-loader = "0.19.3"
 fabric-api = "0.154.2+26.1.2"
+architectury = "20.0.8"
 
 [libraries]
 neoforge = { module = "net.neoforged:neoforge", version.ref = "neoforge" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
-architectury-api = { module = "dev.architectury:architectury", version = "20.0.8" }
+architectury-api = { module = "dev.architectury:architectury", version.ref = "architectury" }
+architectury-fabric = { module = "dev.architectury:architectury-fabric", version.ref = "architectury" }
+architectury-neoforge = { module = "dev.architectury:architectury-neoforge", version.ref = "architectury" }

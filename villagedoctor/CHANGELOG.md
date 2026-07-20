@@ -1,9 +1,7 @@
-- Optional client module: install the same jar on your client and outlines upgrade to crisp wireframes that trace each block's real shape — a bed reads as a bed, a lectern as a lectern.
-- With the client installed, the spyglass zoom flash on shift-clicks and the baby villager head-shake are gone.
-- Modded clients and servers mix freely across loaders — a NeoForge client on a Fabric server gets the upgrades.
-- The checkup screen no longer loses your scroll position: with the client module it stays live and keeps your place through every refresh.
-- On vanilla clients the checkup is now a stable snapshot (a hint line says so) — reopen it to refresh. The old once-a-second refresh reset the scroll to the top.
-- The Stethoscope gets its own hand-drawn texture on clients with the mod — vanilla clients keep seeing the enchanted spyglass.
-- With the client module the Stethoscope no longer zooms like a spyglass — it is not one anymore; vanilla clients keep the zoom.
-- Bell owner lookup now flashes every claimant, not just the first 8 — outlined villagers stay steady in their own color instead of blinking.
-- Vanilla clients need nothing else and lose nothing — the rest of the server-side experience is unchanged.
+Now runs on Minecraft 1.21.11 as well as 26.x, and fixes an outline bug that affected everyone.
+
+- Added support for Minecraft 1.21.11 on both Fabric and NeoForge
+- Fixed: shift-right-clicking a villager could switch the outline on and straight back off, leaving it looking like the gesture did nothing. Vanilla sends two interaction packets for a single click, so the toggle ran twice. Affected 26.x too — most visibly for players on a vanilla client
+- Fixed: the trade-refresh countdown in the checkup could read the wrong time of day
+- Existing 26.1–26.2 support is unchanged
+- Downloads are split by Minecraft version — pick the file whose name matches the version you play

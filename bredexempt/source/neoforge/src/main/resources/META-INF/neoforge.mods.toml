@@ -15,13 +15,13 @@ config = "bredcapexempt.mixins.json"
 [[dependencies.bredcapexempt]]
 modId = "neoforge"
 type = "required"
-versionRange = "[26.1,)"
+versionRange = "${nf_depend}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.bredcapexempt]]
 modId = "minecraft"
 type = "required"
-versionRange = "[26.1,)"
+versionRange = "${mc_depend_neoforge}"
 ordering = "NONE"
 side = "BOTH"

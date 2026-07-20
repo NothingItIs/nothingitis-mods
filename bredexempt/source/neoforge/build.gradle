@@ -27,10 +27,10 @@ repositories {
 }
 
 dependencies {
-    neoForge "net.neoforged:neoforge:26.1.2.78"
-    implementation "dev.architectury:architectury-neoforge:20.0.8"
+    neoForge libs.neoforge
+    add(rootProject.cfgModApi, libs.architectury.neoforge)
 
-    common(project(":common")) { transitive false }
+    common(project(":common")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 }
 
@@ -43,7 +43,8 @@ shadowJar {
     mainSpec.sourcePaths.clear()
     from(zipTree(jar.archiveFile))
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier = null
+    // Intermediate on 1.21.11 (remapJar makes the real artifact); final on 26.x.
+    archiveClassifier = rootProject.needsRemap ? "dev-shadow" : null
 }
 
 sourcesJar {
@@ -56,4 +57,16 @@ components.java {
     withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) { skip() }
 }
 
-assemble.dependsOn shadowJar
+// See the note in fabric/build.gradle: on 1.21.11 the production jar MUST pass through
+// remapJar. NeoForge runs Mojang official names at runtime, so unlike Fabric its jar comes
+// out in official names either way — but the task still has to run to build the artifact.
+if (rootProject.needsRemap) {
+    remapJar {
+        input.set shadowJar.archiveFile
+        dependsOn shadowJar
+        archiveClassifier = null
+    }
+    assemble.dependsOn remapJar
+} else {
+    assemble.dependsOn shadowJar
+}

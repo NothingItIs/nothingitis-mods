@@ -22,8 +22,8 @@
         "villagedoctor.fabric.mixins.json"
     ],
     "depends": {
-        "minecraft": ">=26.1",
-        "fabric-api": ">=0.154.2"
+        "minecraft": "${mc_depend_fabric}",
+        "fabric-api": "${fapi_depend}"
     },
     "icon": "assets/villagedoctor/icon.png"
 }
